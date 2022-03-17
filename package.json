@@ -1,0 +1,28 @@
+{
+  "name": "sydney-tours",
+  "version": "1.0.0",
+  "description": "Practicing The express development",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "author": "Sydney Otutey",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^14.2.0",
+    "express": "^4.17.2",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^6.3.0",
+    "helmet": "^5.0.2",
+    "hpp": "^0.2.3",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.1.7",
+    "nodemailer": "^6.7.2",
+    "slugify": "^1.6.5",
+    "validator": "^13.7.0",
+    "win-node-env": "^0.6.0",
+    "xss-clean": "^0.1.1"
+  }
+}
