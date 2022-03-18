@@ -37,16 +37,8 @@ exports.updateMe = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
-exports.getAllUsers = catchAsyncErrors(async (req, res, next) => {
-  const users = await User.find();
-  res.status(200).json({
-    status: 'success',
-    data: {
-      users,
-    },
-  });
-});
-
+//READING USER DOCS
+exports.getAllUsers = factory.getAll(User);
 exports.getUser = factory.getOne(User);
 
 exports.createNewUser = (req, res) => {
