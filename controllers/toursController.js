@@ -15,27 +15,14 @@ exports.aliasTopTours = async (req, res, next) => {
   next();
 };
 
-exports.getAllTours = catchAsyncErrors(async (req, res, next) => {
-  const features = new APIFeatures(Tour.find(), req.query)
-    .filter()
-    .sort()
-    .fieldLimit()
-    .paginate();
-
-  const tours = await features.query;
-  //TODO:
-  //implement field limiting
-  //implement pagination
-
-  res.status(200).json({
-    status: 'Success',
-    results: tours.length,
-    data: tours,
-  });
-});
-
-exports.getTour = factory.getOne(Tour, { path: 'reviews' });
+//CREATING TOUR DOC
 exports.createNewTour = factory.createOne(Tour);
+
+//READING TOUR DOC
+exports.getAllTours = factory.getAll(Tour);
+exports.getTour = factory.getOne(Tour, { path: 'reviews' });
+
+//UPDATING TOUR DOC
 exports.updateTour = factory.updateOne(Tour);
 // exports.deleteTour = catchAsyncErrors(async (req, res, next) => {
 //   const tour = await Tour.findByIdAndDelete(req.params.id);
@@ -47,7 +34,10 @@ exports.updateTour = factory.updateOne(Tour);
 //   });
 // });
 
+//DELETING TOUR DOC
 exports.deleteTour = factory.deleteOne(Tour);
+
+//AGGREGATION
 
 exports.getTourStats = catchAsyncErrors(async (req, res, next) => {
   const stats = await Tour.aggregate([
