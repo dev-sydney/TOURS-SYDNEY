@@ -9,19 +9,13 @@ router.post('/login', authController.signIn);
 router.post('/forgotPassword', authController.forgotPassword);
 router.patch('/resetPassword/:token', authController.resetPassword);
 
-router.patch(
-  '/updatePassword',
-  authController.protectRoute,
-  authController.updatePassword
-);
-router.patch('/updateMe', authController.protectRoute, userController.updateMe);
-router.get(
-  '/me',
-  authController.protectRoute,
-  userController.getMe,
-  userController.getUser
-);
+router.use(authController.protectRoute); //PROTECTING ALL THE ROUTES THAT COME AFTER THIS POINT
 
+router.patch('/updatePassword', authController.updatePassword);
+router.patch('/updateMe', userController.updateMe);
+router.get('/me', userController.getMe, userController.getUser);
+
+router.use(authController.restrictTo('admin'));
 router
   .route('/')
   .get(userController.getAllUsers)

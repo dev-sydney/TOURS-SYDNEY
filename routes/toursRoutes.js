@@ -26,17 +26,31 @@ router.use('/:tourId/reviews', reviewRouter);
 
 router.route('/top-5-cheap').get(aliasTopTours, getAllTours);
 router.route('/tour-stats').get(getTourStats);
-router.route('/monthly-plan/:year').get(getMonthlyPlan);
+router
+  .route('/monthly-plan/:year')
+  .get(
+    authController.protectRoute,
+    authController.restrictTo('lead-guide', 'admin', 'guide'),
+    getMonthlyPlan
+  );
 
 router
   .route('/')
-  .get(authController.protectRoute, getAllTours)
-  .post(createNewTour);
+  .get(getAllTours)
+  .post(
+    authController.protectRoute,
+    authController.restrictTo('lead-guide', 'admin'),
+    createNewTour
+  );
 
 router
   .route('/:id')
   .get(getTour)
-  .patch(updateTour)
+  .patch(
+    authController.protectRoute,
+    authController.restrictTo('lead-guide', 'admin'),
+    updateTour
+  )
   .delete(
     authController.protectRoute,
     authController.restrictTo('lead-guide', 'admin'),

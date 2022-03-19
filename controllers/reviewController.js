@@ -12,20 +12,11 @@ exports.createTourUserId = (req, res, next) => {
   next();
 };
 exports.createReview = factory.createOne(Review);
-
-exports.getReviews = catchAsyncErrors(async (req, res, next) => {
-  let filterObj = {};
-
-  if (req.params.tourId) filterObj = { tour: req.params.tourId };
-  const reviews = await Review.find(filterObj);
-
-  res.status(200).json({
-    status: 'Success',
-    data: {
-      reviews,
-    },
-  });
-});
+//READING REVIEW DOCS
+exports.getReviews = factory.getAll(Review);
 exports.getReview = factory.getOne(Review, { path: 'user' });
+//UPDATING DOCS
 exports.updateReview = factory.updateOne(Review);
+
+//DELETING DOCS
 exports.deleteReview = factory.deleteOne(Review);

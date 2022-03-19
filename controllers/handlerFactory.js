@@ -1,5 +1,6 @@
 const catchAsyncErrors = require('./../utils/catchAsyncError');
 const AppError = require('./../utils/appErrors');
+const APIFeatures = require('./../utils/apiFeatures');
 
 exports.deleteOne = (Model) =>
   catchAsyncErrors(async (req, res, next) => {
@@ -49,7 +50,11 @@ exports.getOne = (Model, popOption) =>
 
 exports.getAll = (Model) =>
   catchAsyncErrors(async (req, res, next) => {
-    const features = new APIFeatures(Model.find(), req.query)
+    //To allow for nested GET reviews on tour
+    let filterObj = {};
+    if (req.params.tourId) filterObj = { tour: req.params.tourId };
+
+    const features = new APIFeatures(Model.find(filterObj), req.query)
       .filter()
       .sort()
       .fieldLimit()
