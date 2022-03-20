@@ -61,6 +61,8 @@ exports.getAll = (Model) =>
       .paginate();
 
     const docs = await features.query;
+    // const docs = await features.query.explain();
+
     //TODO:
     //implement field limiting
     //implement pagination
