@@ -29,6 +29,8 @@ const reviewsSchema = new mongoose.Schema(
   }
 );
 
+reviewsSchema.index({ tour: 1, user: 1 }, { unique: true }); //SETTING UNIQUE TO "true" means the tour & user should always be unique
+
 // reviewsSchema.pre(/^find/, function (next) {
 //   this.populate('user');
 
@@ -51,19 +53,26 @@ reviewsSchema.statics.calcAverageRatings = async function (tourId) {
       },
     },
   ]);
-
   console.log(stats);
-
   await Tour.findByIdAndUpdate(tourId, {
     ratingsQuantity: stats[0].nRating,
     ratingsAverage: stats[0].avgRating,
   });
 };
 
-reviewsSchema.post('save', function (next) {
+reviewsSchema.post('save', function () {
   //THIS here points to the current review
   this.constructor.calcAverageRatings(this.tour);
 });
+
+//findByIdAndUpdate
+//findByIdAndDelete
+reviewsSchema.post(/^findOneAnd/, async function (doc) {
+  if (doc) {
+    await doc.constructor.calcAverageRatings(doc.tour);
+  }
+});
+
 const Review = mongoose.model('Review', reviewsSchema);
 
 module.exports = Review;
