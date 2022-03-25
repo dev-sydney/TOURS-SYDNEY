@@ -103,3 +103,76 @@ exports.getMonthlyPlan = catchAsyncErrors(async (req, res, next) => {
     data: { plan },
   });
 });
+
+//
+exports.getToursWithin = catchAsyncErrors(async (req, res, next) => {
+  const { distance, latlng, unit } = req.params;
+  const [lat, lng] = latlng.split(',');
+
+  const radius = unit === 'mi' ? distance / 3963.2 : distance / 6378.1;
+
+  if (!lat || !lng)
+    next(
+      new AppError(
+        'Please provide a latitude and a longitude in the format lat,lng',
+        400
+      )
+    );
+  //$geoWithin - used to find documents within a specific geometery
+  //To specify that geometery we use $centerSphere (it defines a sphere)
+  //mongodb expects the radius to be in a special unit called radians
+  const tours = await Tour.find({
+    startLocation: { $geoWithin: { $centerSphere: [[lng, lat], radius] } },
+  });
+
+  //console.log(distance, lat, lng, unit);
+  res.status(200).json({
+    status: 'success',
+    results: tours.length,
+    data: {
+      data: tours,
+    },
+  });
+});
+
+exports.getDistances = catchAsyncErrors(async (req, res, next) => {
+  const { latlng, unit } = req.params;
+  const [lat, lng] = latlng.split(',');
+  if (!lat || !lng)
+    return next(
+      new AppError(
+        'Please provide a latitude and a longitude in the format lat,lng',
+        400
+      )
+    );
+
+  const multiplier = unit === 'mi' ? 0.000621371 : 0.001;
+
+  const distances = await Tour.aggregate([
+    //near is the GEO-SPATIAL point from which to calculate the distances from all the tours
+    {
+      //1st STAGE
+      $geoNear: {
+        near: {
+          type: 'Point',
+          coordinates: [+lng, +lat],
+        },
+        distanceField: 'distances',
+        distanceMultiplier: multiplier,
+      },
+    },
+    {
+      $project: {
+        name: 1,
+        distances: 1,
+      },
+    },
+  ]);
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      data: distances,
+    },
+  });
+});

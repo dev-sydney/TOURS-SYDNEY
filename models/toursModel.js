@@ -31,9 +31,10 @@ const toursSchema = new mongoose.Schema(
     },
     ratingsAverage: {
       type: Number,
-      default: 0,
+      default: 4.5,
       min: [1, 'The least tour rating must be 1.0'],
       max: [5, 'The Max Tour Rating Must Be 5.0'],
+      set: (val) => Math.round(val * 10) / 10, //Function runs each time a new value is set for this field
     },
     ratingsQuantity: {
       type: Number,
@@ -114,6 +115,7 @@ const toursSchema = new mongoose.Schema(
 //toursSchema.index({ price: 1 }); //1:Asc___-1:desc
 toursSchema.index({ price: 1, ratingsAverage: -1 }); //1:Asc___-1:desc
 toursSchema.index({ slug: 1 });
+toursSchema.index({ startLocation: '2dsphere' });
 
 //CREATING THE VIRTUAL PROPERTIES
 toursSchema.virtual('durationInWeeks').get(function () {
@@ -142,11 +144,11 @@ toursSchema.pre(/^find/, function (next) {
   next();
 });
 //AGGREGATION MIDDLEWARE
-toursSchema.pre('aggregate', function (next) {
-  console.log(this.pipeline());
-  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
-  next();
-});
+// toursSchema.pre('aggregate', function (next) {
+//   console.log(this.pipeline());
+//   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+//   next();
+// });
 
 //Custom validator
 //handler for undhandled routes

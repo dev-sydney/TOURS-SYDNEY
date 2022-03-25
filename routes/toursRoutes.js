@@ -8,6 +8,8 @@ const {
   aliasTopTours,
   getTourStats,
   getMonthlyPlan,
+  getToursWithin,
+  getDistances,
 } = require('../controllers/toursController');
 const authController = require('./../controllers/authController');
 const reviewRouter = require('./../routes/reviewsRoutes');
@@ -33,6 +35,14 @@ router
     authController.restrictTo('lead-guide', 'admin', 'guide'),
     getMonthlyPlan
   );
+//GEO-SPATIAL ROUTE FOR GETTING TOURS WITHIN A RADIUS
+router
+  .route('/tours-within/:distance/center/:latlng/unit/:unit')
+  .get(getToursWithin);
+
+//GEO-SPATIAL ROUTE FOR CALCULATING DISTANCES
+//latlng is the coordinate of the user here
+router.route('/distances/:latlng/unit/:unit').get(getDistances);
 
 router
   .route('/')
