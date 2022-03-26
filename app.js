@@ -1,3 +1,5 @@
+const path = require('path');
+
 const express = require('express');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
@@ -13,6 +15,15 @@ const AppError = require('./utils/appErrors');
 const errorController = require('./controllers/errorController');
 
 const app = express();
+//SETTING UP PUG IN EXPRESS
+//By first defing the view engine which well be using
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
+
+//SERVE THE STATIC ASSETS
+// app.use(express.static(`${__dirname}/public`));
+app.use(express.static(path.join(__dirname, 'public')));
+
 //SET SECURITY HTTP HEADERS
 app.use(helmet());
 
@@ -43,9 +54,12 @@ app.use(
   })
 );
 
-//SERVE THE STATIC FILES
-app.use(express.static(`${__dirname}/public`));
-
+app.get('/', (req, res) => {
+  res.status(200).render('base', {
+    tour: 'The Forest Hiker',
+    user: 'Sydney',
+  }); //The Variables*(properties) defined here are known as "locals"
+});
 app.use('/api/v1/tours', toursRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
