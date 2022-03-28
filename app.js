@@ -10,9 +10,11 @@ const hpp = require('hpp');
 const toursRouter = require('./routes/toursRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewsRoutes');
+const viewRouter = require('./routes/viewRoutes');
 
 const AppError = require('./utils/appErrors');
 const errorController = require('./controllers/errorController');
+const req = require('express/lib/request');
 
 const app = express();
 //SETTING UP PUG IN EXPRESS
@@ -54,12 +56,7 @@ app.use(
   })
 );
 
-app.get('/', (req, res) => {
-  res.status(200).render('base', {
-    tour: 'The Forest Hiker',
-    user: 'Sydney',
-  }); //The Variables*(properties) defined here are known as "locals"
-});
+app.use('/', viewRouter);
 app.use('/api/v1/tours', toursRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
