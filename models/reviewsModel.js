@@ -31,11 +31,11 @@ const reviewsSchema = new mongoose.Schema(
 
 reviewsSchema.index({ tour: 1, user: 1 }, { unique: true }); //SETTING UNIQUE TO "true" means the tour & user should always be unique
 
-// reviewsSchema.pre(/^find/, function (next) {
-//   this.populate('user');
+reviewsSchema.pre(/^find/, function (next) {
+  this.populate('user');
 
-//   next();
-// });
+  next();
+});
 reviewsSchema.statics.calcAverageRatings = async function (tourId) {
   //This function is ONLY available on the Review model & NOT the doc itself
   //THIS here points to the current model
