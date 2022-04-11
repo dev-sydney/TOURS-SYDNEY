@@ -38,8 +38,8 @@ mongoose
 
 const importData = async () => {
   try {
+    await User.create(users, { validateModifiedOnly: true });
     await Tour.create(tours);
-    await User.create(users, { validateBeforeSave: false });
     await Review.create(reviews);
 
     console.log('Data Successfully Loaded👍🏽');
