@@ -1,12 +1,13 @@
 doctype html
 html
     head 
-        meta(charset='UTF-8' )
-        meta(name='viewport' content='width=device-width, initial-scale=1.0') 
-        link(rel='stylesheet' href='/css/style.css')
-        link(rel='shortcut icon' type='image/png' href='/img/favicon.png')
-        link(rel='stylesheet' href='https://fonts.googleapis.com/css?family=Lato:300,300i,700')
-        title Natours | #{title}
+        block Head
+            meta(charset='UTF-8' )
+            meta(name='viewport' content='width=device-width, initial-scale=1.0') 
+            link(rel='stylesheet' href='/css/style.css')
+            link(rel='shortcut icon' type='image/png' href='/img/favicon.png')
+            link(rel='stylesheet' href='https://fonts.googleapis.com/css?family=Lato:300,300i,700')
+            title Natours | #{title}
 
     body
         // HEADER
@@ -17,6 +18,9 @@ html
             h1 This is a placeholder 
             //FOOTER
         include _footer
+        script(src='https://cdnjs.cloudflare.com/ajax/libs/axios/0.26.1/axios.min.js')
+        //Doing the above will grant accesss to a global object called axios
+        script(src='/js/login.js')
 
 
 
