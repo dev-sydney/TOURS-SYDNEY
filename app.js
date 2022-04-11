@@ -6,6 +6,7 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const cookieParser = require('cookie-parser');
 
 const toursRouter = require('./routes/toursRoutes');
 const userRouter = require('./routes/userRoutes');
@@ -40,6 +41,9 @@ app.use('/api', limiter);
 //BODY PARSER, Reading data from the body into req.body
 app.use(express.json({ limit: '10kb' }));
 
+//COOKIE PARSER, Reading data from the cookie into req.cookie
+app.use(cookieParser());
+
 app.use(mongoSanitize());
 app.use(xss());
 //PARAMTER POLLUTION
@@ -55,6 +59,10 @@ app.use(
     ],
   })
 );
+// app.use((req, res, next) => {
+//   console.log(`This is the cookie${req.cookies}`);
+//   next();
+// });
 
 app.use('/', viewRouter);
 app.use('/api/v1/tours', toursRouter);
