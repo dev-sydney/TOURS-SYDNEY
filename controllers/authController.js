@@ -50,6 +50,7 @@ exports.signIn = catchAsyncErrors(async (req, res, next) => {
     return next(new AppError('Please provide an email and password!', 400));
 
   const user = await User.findOne({ email }).select('+password');
+  console.log(user);
 
   if (!user || !(await user.checkPasswordValidility(password, user.password)))
     return next(new AppError('Incorrect password or email', 404));
@@ -64,7 +65,10 @@ exports.protectRoute = catchAsyncErrors(async (req, res, next) => {
     req.headers.authorization.startsWith('Bearer')
   ) {
     token = req.headers.authorization.split(' ')[1];
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt;
   }
+
   if (!token)
     return next(
       new AppError(
@@ -89,6 +93,36 @@ exports.protectRoute = catchAsyncErrors(async (req, res, next) => {
     );
 
   req.user = stillExistingUser;
+  next();
+});
+
+//Only for rendered pages, produces no error
+exports.isLoggedIn = catchAsyncErrors(async (req, res, next) => {
+  if (req.cookies.jwt) {
+    //1. Verifying Token
+    const decodedPayload = await promisify(jwt.verify)(
+      req.cookies.jwt,
+      process.env.JWT_SECRET
+    );
+
+    const stillExistingUser = await User.findById(decodedPayload.id);
+    if (!stillExistingUser) {
+      return next();
+    }
+
+    if (stillExistingUser.didPasswordChangedAfter(decodedPayload.iat)) {
+      return next();
+    }
+
+    //AT THIS POINT, THERES A LOGGED IN USER
+    //SO THEREFORE, MAKE THE USER ACCESSIBLE TO ALL TEMPLATES
+    res.locals.user = stillExistingUser;
+    //console.log('JUST LOGGED IN:❗❗❗', stillExistingUser);
+    //The "res.locals" object can be accessed by all the pug templates
+    //and so whatever property we attach to it will be accessible to all the pug templates
+    //Similar to passing data into the render fn as an arg
+    return next();
+  }
   next();
 });
 
