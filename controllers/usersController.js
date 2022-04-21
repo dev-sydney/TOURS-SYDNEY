@@ -20,6 +20,8 @@ exports.getMe = (req, res, next) => {
 };
 
 exports.updateMe = catchAsyncErrors(async (req, res, next) => {
+  console.log(req.file);
+  console.log(JSON.stringify(req.body));
   if (req.body.password || req.body.passwordConfirm)
     return next(
       new AppError(
