@@ -57,6 +57,17 @@ exports.signIn = catchAsyncErrors(async (req, res, next) => {
 
   createSendToken(user, 200, res);
 });
+
+exports.logout = (req, res, next) => {
+  res.cookie('jwt', 'someDummyOverwritingText', {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true,
+  });
+
+  res.status(200).json({
+    status: 'success',
+  });
+};
 //AUTHENICATION
 exports.protectRoute = catchAsyncErrors(async (req, res, next) => {
   let token;
@@ -93,38 +104,44 @@ exports.protectRoute = catchAsyncErrors(async (req, res, next) => {
     );
 
   req.user = stillExistingUser;
+  res.locals.user = stillExistingUser;
   next();
 });
 
 //Only for rendered pages, produces no error
-exports.isLoggedIn = catchAsyncErrors(async (req, res, next) => {
+exports.isLoggedIn = async (req, res, next) => {
   if (req.cookies.jwt) {
-    //1. Verifying Token
-    const decodedPayload = await promisify(jwt.verify)(
-      req.cookies.jwt,
-      process.env.JWT_SECRET
-    );
+    try {
+      //1. Verifying Token
+      const decodedPayload = await promisify(jwt.verify)(
+        req.cookies.jwt,
+        process.env.JWT_SECRET
+      );
 
-    const stillExistingUser = await User.findById(decodedPayload.id);
-    if (!stillExistingUser) {
+      const stillExistingUser = await User.findById(decodedPayload.id);
+      if (!stillExistingUser) {
+        return next();
+      }
+
+      if (stillExistingUser.didPasswordChangedAfter(decodedPayload.iat)) {
+        return next();
+      }
+
+      //AT THIS POINT, THERES A LOGGED IN USER
+      //SO THEREFORE, MAKE THE USER ACCESSIBLE TO ALL TEMPLATES
+      res.locals.user = stillExistingUser;
+
+      //console.log('JUST LOGGED IN:❗❗❗', stillExistingUser);
+      //The "res.locals" object can be accessed by all the pug templates
+      //and so whatever property we attach to it will be accessible to all the pug templates
+      //Similar to passing data into the render fn as an arg
+      return next();
+    } catch (err) {
       return next();
     }
-
-    if (stillExistingUser.didPasswordChangedAfter(decodedPayload.iat)) {
-      return next();
-    }
-
-    //AT THIS POINT, THERES A LOGGED IN USER
-    //SO THEREFORE, MAKE THE USER ACCESSIBLE TO ALL TEMPLATES
-    res.locals.user = stillExistingUser;
-    //console.log('JUST LOGGED IN:❗❗❗', stillExistingUser);
-    //The "res.locals" object can be accessed by all the pug templates
-    //and so whatever property we attach to it will be accessible to all the pug templates
-    //Similar to passing data into the render fn as an arg
-    return next();
   }
   next();
-});
+};
 
 //AUTHOURIZATION
 exports.restrictTo =
