@@ -1,8 +1,42 @@
-const fs = require('fs');
 const User = require('../models/userModel');
 const AppError = require('../utils/appErrors');
 const catchAsyncErrors = require('./../utils/catchAsyncError');
 const factory = require('./handlerFactory');
+const multer = require('multer');
+
+const multerStorage = multer.diskStorage({
+  destination: (req, curFile, cb) => {
+    //setting the destination of the uploaded file into the FS
+    cb(null, 'public/img/users');
+  },
+  filename: (req, curFile, cb) => {
+    //user-userID-currentTimeStamp.jpeg - file name structure
+    const fileExtension = curFile.mimetype.split('/')[1];
+    cb(null, `user-${req.user._id}-${Date.now()}.${fileExtension}`);
+  },
+});
+
+/**
+ * The function below checks wether the uploaded file is an image or not
+ * @param {*} req
+ * @param {*} curFile
+ * @param {*} cb
+ */
+const multerFilter = (req, curFile, cb) => {
+  if (curFile.mimetype.startsWith('image')) {
+    cb(null, true);
+  } else {
+    cb(new AppError('Not an image! Please upload only images.', 400), false);
+  }
+};
+
+//const upload = multer({dest:'public/img/users'});
+const upload = multer({
+  storage: multerStorage,
+  fileFilter: multerFilter,
+});
+
+exports.uploadUserPhoto = upload.single('photo');
 
 const createValidateUpdateBody = (reqObj, ...allowedFields) => {
   let obj = {};

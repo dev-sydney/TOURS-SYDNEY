@@ -9011,7 +9011,7 @@ var updateSettings = /*#__PURE__*/function () {
             res = _context2.sent;
 
             if (res.data.status === 'success') {
-              (0, _alerts.showAlerts)('success', "".concat(type.toLowerCase(), " updated successfully!"));
+              (0, _alerts.showAlerts)('success', "".concat(type.toUpperCase(), " updated successfully!"));
             }
 
             _context2.next = 11;
@@ -9458,7 +9458,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60258" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53162" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
