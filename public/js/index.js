@@ -33,10 +33,18 @@ if (logoutBtn) {
 if (updateDataForm) {
   updateDataForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    const email = document.getElementById('email').value;
-    const name = document.getElementById('name').value;
+    const form = new FormData(); //This returns an object
 
-    updateSettings({ email, name }, 'data');
+    form.append('name', document.getElementById('name').value);
+    form.append('email', document.getElementById('email').value);
+    form.append('photo', document.getElementById('photo').files[0]);
+
+    console.log(form);
+
+    // const email = document.getElementById('email').value;
+    // const name = document.getElementById('name').value;
+
+    updateSettings(form, 'data');
   });
 }
 if (updatePasswordForm) {
