@@ -3,19 +3,20 @@ const AppError = require('../utils/appErrors');
 const catchAsyncErrors = require('./../utils/catchAsyncError');
 const factory = require('./handlerFactory');
 const multer = require('multer');
+const sharp = require('sharp');
 
-const multerStorage = multer.diskStorage({
-  destination: (req, curFile, cb) => {
-    //setting the destination of the uploaded file into the FS
-    cb(null, 'public/img/users');
-  },
-  filename: (req, curFile, cb) => {
-    //user-userID-currentTimeStamp.jpeg - file name structure
-    const fileExtension = curFile.mimetype.split('/')[1];
-    cb(null, `user-${req.user._id}-${Date.now()}.${fileExtension}`);
-  },
-});
-
+// const multerStorage = multer.diskStorage({
+//   destination: (req, curFile, cb) => {
+//     //setting the destination of the uploaded file into the FS
+//     cb(null, 'public/img/users');
+//   },
+//   filename: (req, curFile, cb) => {
+//     //user-userID-currentTimeStamp.jpeg - file name structure
+//     const fileExtension = curFile.mimetype.split('/')[1];
+//     cb(null, `user-${req.user._id}-${Date.now()}.${fileExtension}`);
+//   },
+// });
+const multerStorage = multer.memoryStorage();
 /**
  * The function below checks wether the uploaded file is an image or not
  * @param {*} req
@@ -38,6 +39,20 @@ const upload = multer({
 
 exports.uploadUserPhoto = upload.single('photo');
 
+exports.resizeUserPhoto = (req, res, next) => {
+  if (!req.file) return next();
+
+  req.file.filename = `user-${req.user._id}-${Date.now()}.jpeg`;
+
+  sharp(req.file.buffer)
+    .resize(500, 500)
+    .toFormat('jpeg')
+    .jpeg({ quality: 90 })
+    .toFile(`public/img/users/${req.file.filename}`);
+
+  next();
+};
+
 const createValidateUpdateBody = (reqObj, ...allowedFields) => {
   let obj = {};
   Object.keys(reqObj).forEach((el) => {
@@ -54,8 +69,8 @@ exports.getMe = (req, res, next) => {
 };
 
 exports.updateMe = catchAsyncErrors(async (req, res, next) => {
-  console.log(req.file);
-  console.log(JSON.stringify(req.body));
+  // console.log(req.file);
+  // console.log(JSON.stringify(req.body));
   if (req.body.password || req.body.passwordConfirm)
     return next(
       new AppError(
@@ -64,6 +79,9 @@ exports.updateMe = catchAsyncErrors(async (req, res, next) => {
       )
     );
   const filteredBody = createValidateUpdateBody(req.body, 'name', 'email');
+  if (req.file) {
+    filteredBody.photo = req.file.filename;
+  }
 
   const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
     new: true,
