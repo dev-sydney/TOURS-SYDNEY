@@ -1,12 +1,36 @@
-const fs = require('fs');
-
 const Tour = require('../models/toursModel');
 const APIFeatures = require('../utils/apiFeatures');
 const AppError = require('../utils/appErrors');
 const catchAsyncErrors = require('../utils/catchAsyncError');
-
+const multer = require('multer');
+const sharp = require('sharp');
 const factory = require('./handlerFactory');
 /////////////////////////////////////////////////
+const multerStorage = multer.memoryStorage();
+
+const multerFilter = (req, curFile, cb) => {
+  if (curFile.mimetype.startsWith('image/')) {
+    cb(null, true);
+  } else {
+    cb(new AppError('Not an image! Please upload only images.', 400), false);
+  }
+};
+
+const upload = multer({
+  storage: multerStorage,
+  fileFilter: multerFilter,
+});
+
+exports.uploadTourImages = upload.fields([
+  { name: 'imageCover', maxCount: 1 }, //setting the maxCount to 1, means that there should be only 1 field that name defined
+  { name: 'images', maxCount: 3 },
+]);
+//upload.array('fieldname',3)
+exports.resizeTourImages = (req, res, next) => {
+  console.log(req.files);
+  next();
+};
+///////////////////////////////////////////////
 exports.aliasTopTours = async (req, res, next) => {
   req.query.limit = '5';
   req.query.sort = '-ratingsAverage,price';
