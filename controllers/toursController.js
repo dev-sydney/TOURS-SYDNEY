@@ -26,10 +26,40 @@ exports.uploadTourImages = upload.fields([
   { name: 'images', maxCount: 3 },
 ]);
 //upload.array('fieldname',3)
-exports.resizeTourImages = (req, res, next) => {
-  console.log(req.files);
+
+exports.resizeTourImages = async (req, res, next) => {
+  //console.log(req.files);
+  if (!req.files.imageCover || !req.files.images) return next();
+
+  //1. Cover image processing
+  const imageCoverFilename = `tour-${req.params.id}-${Date.now()}-cover.jpeg`;
+  await sharp(req.files.imageCover[0].buffer)
+    .resize(2000, 1333)
+    .toFormat('jpeg')
+    .jpeg({ quality: 90 })
+    .toFile(`public/img/tours/${imageCoverFilename}`);
+  req.body.imageCover = imageCoverFilename;
+
+  //2. images processing
+  req.body.images = [];
+
+  await Promise.all(
+    req.files.images.map(async (curImg, i) => {
+      const fileName = `tour-${req.params.id}-${Date.now()}-${i + 1}.jpeg`;
+
+      await sharp(curImg.buffer)
+        .resize(2000, 1333)
+        .toFormat('jpeg')
+        .jpeg({ quality: 90 })
+        .toFile(`public/img/tours/${fileName}`);
+
+      req.body.images.push(fileName);
+    })
+  );
+
   next();
 };
+
 ///////////////////////////////////////////////
 exports.aliasTopTours = async (req, res, next) => {
   req.query.limit = '5';
