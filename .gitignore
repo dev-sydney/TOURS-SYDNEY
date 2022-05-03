@@ -1,3 +1,6 @@
 node_modules
 config.env
 package-lock.json
+.cache
+public/img/users/258033c303351e08f5fdf8b055348588
+.gitignore

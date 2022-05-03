@@ -5,7 +5,7 @@ export const signUp = async (name, email, password, passwordConfirm) => {
   try {
     const res = await axios({
       method: 'POST',
-      url: 'http://127.0.0.1:3000/api/v1/users/signup',
+      url: '/api/v1/users/signup',
       data: {
         name,
         email,
@@ -13,7 +13,7 @@ export const signUp = async (name, email, password, passwordConfirm) => {
         passwordConfirm,
       },
     });
-    console.log(res);
+    //console.log(res);
 
     if (res.data.status === 'success') {
       showAlerts('success', `Hey ${name.split(' ')[0]} your'e welcome!`);
@@ -23,7 +23,7 @@ export const signUp = async (name, email, password, passwordConfirm) => {
       }, 1500);
     }
   } catch (err) {
-    console.error(err);
+    // console.error(err);
     showAlerts('error', err);
   }
 };
