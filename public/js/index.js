@@ -2,13 +2,17 @@ import '@babel/polyfill';
 import { login, logoutUser } from './login.js';
 import { updateSettings } from './updateSettings.js';
 import { displayMap } from './mapbox.js';
-
+import { bookTour } from './stripe.js';
+import { signUp } from './signup.js';
 //DOM ELEMENTS
 const mapBox = document.getElementById('map');
 const loginForm = document.querySelector('.form--login');
 const logoutBtn = document.querySelector('.nav__el--logout');
 const updateDataForm = document.querySelector('.form-user-data');
 const updatePasswordForm = document.querySelector('.form-user-password');
+const bookBtn = document.getElementById('book-tour');
+
+const signupForm = document.querySelector('.form--signup');
 //VALUES
 
 if (mapBox) {
@@ -66,5 +70,25 @@ if (updatePasswordForm) {
     passwordCurrent = '';
     password = '';
     passwordConfirm = '';
+  });
+}
+if (bookBtn) {
+  bookBtn.addEventListener('click', (e) => {
+    e.target.textContent = 'Processing...';
+    const { tourId } = e.target.dataset;
+    bookTour(tourId);
+  });
+}
+
+if (signupForm) {
+  signupForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById('email').value;
+    const name = document.getElementById('fullname').value;
+    const password = document.getElementById('password').value;
+    const passwordConfirm = document.getElementById('passwordConfirm').value;
+
+    signUp(name, email, password, passwordConfirm);
   });
 }
