@@ -1,5 +1,6 @@
 const Tour = require('./../models/toursModel');
 const User = require('./../models/userModel');
+const Booking = require('./../models/bookingsModel');
 const catchAsyncErrors = require('./../utils/catchAsyncError');
 const AppError = require('./../utils/appErrors');
 
@@ -42,6 +43,19 @@ exports.getLoginForm = (req, res) => {
   res.status(200).render('login', { title: 'Log into your account' });
 };
 
+exports.getMyTours = catchAsyncErrors(async (req, res, next) => {
+  //1. Find all bookings
+  const bookings = await Booking.find({ user: req.user._id });
+  //2. find tours with the returned IDs
+  const tourIDs = bookings.map((el) => el.tour);
+  const tours = await Tour.find({ _id: { $in: tourIDs } });
+
+  res.status(200).render('overview', {
+    title: 'My Tours',
+    tours,
+  });
+});
+
 exports.displayAccount = (req, res) => {
   res.status(200).render('accountt', { title: 'Your account' });
 };
@@ -67,3 +81,9 @@ exports.updateUserData = catchAsyncErrors(async (req, res, next) => {
     .status(200)
     .render('accountt', { title: 'Your account', user: updatedUser });
 });
+
+exports.getSignUpForm = (req, res, next) => {
+  res.status(200).render('signup', {
+    title: 'Sign up for free',
+  });
+};
