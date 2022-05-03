@@ -10,5 +10,13 @@ router.get(
   authController.protectRoute,
   bookingController.getCheckoutSession
 );
+//CREATE
+router
+  .route('/')
+  .post(bookingController.createBooking)
+  .get(bookingController.getBookings);
+
+//DELETE
+router.delete('/:bookingID', bookingController.deleteBooking);
 
 module.exports = router;
