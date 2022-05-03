@@ -33,12 +33,13 @@ const createSendToken = (user, statusCode, res) => {
   });
 };
 exports.signup = catchAsyncErrors(async (req, res, next) => {
+  const { name, email, password, passwordConfirm } = req.body;
+
   const newUser = await User.create({
-    name: req.body.name,
-    email: req.body.email,
-    password: req.body.password,
-    passwordConfirm: req.body.passwordConfirm,
-    role: req.body.role,
+    name,
+    email,
+    password,
+    passwordConfirm,
   });
 
   const url = `${req.protocol}://${req.get('host')}/ME`;
