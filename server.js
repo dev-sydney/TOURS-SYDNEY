@@ -12,7 +12,7 @@ const app = require('./app');
 const port = Process.env.PORT;
 //console.log(app.get('env'));
 //console.log(process.env);
-const DB = process.env.DATABASE.replace(
+const DB = process.env.DATABASE_URL.replace(
   '<PASSWORD>',
   process.env.DATABASE_PASSWORD
 );
