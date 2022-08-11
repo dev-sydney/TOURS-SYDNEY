@@ -9,7 +9,7 @@ dotenv.config({ path: './config.env' });
 
 const app = require('./app');
 
-const port = Process.env.PORT;
+const port = process.env.PORT;
 //console.log(app.get('env'));
 //console.log(process.env);
 const DB = process.env.DATABASE_URL.replace(
@@ -32,5 +32,13 @@ process.on('unhandledRejection', (err) => {
   console.log('UNHANDLED REJECTION!❌ Shutting Down...');
   server.close(() => {
     process.exit(1);
+  });
+});
+
+process.on('SIGTERM', () => {
+  console.log('👍🏽SIGTERM recieved shutting down gracefully!');
+
+  server.close(() => {
+    console.log('process terminated! 💥');
   });
 });

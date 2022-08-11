@@ -8,6 +8,7 @@ const xss = require('xss-clean');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
 const compression = require('compression');
+const cors = require('cors');
 
 const toursRouter = require('./routes/toursRoutes');
 const userRouter = require('./routes/userRoutes');
@@ -16,14 +17,22 @@ const viewRouter = require('./routes/viewRoutes');
 const bookingRouter = require('./routes/bookingRoutes');
 
 const AppError = require('./utils/appErrors');
+
 const errorController = require('./controllers/errorController');
-const req = require('express/lib/request');
+const bookingController = require('./controllers/bookingController');
+/////////////////////////////////////////////////////////////////////////
 
 const app = express();
+app.enable('trust proxy');
+
 //SETTING UP PUG IN EXPRESS
 //By first defing the view engine which well be using
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
+
+app.use(cors()); //Implementing cors for all our routes
+app.options('*', cors());
+//app.options('/ap/v1/tours/', cors());
 
 //SERVE THE STATIC ASSETS
 // app.use(express.static(`${__dirname}/public`));
@@ -39,6 +48,12 @@ const limiter = rateLimit({
   message: 'Too many requests from this IP please try again in an hour',
 });
 app.use('/api', limiter);
+
+app.post(
+  '/webhook-checkout',
+  express.raw({ type: 'application/json' }),
+  bookingController.webhookCheckout
+);
 
 //BODY PARSER, Reading data from the body into req.body
 app.use(express.json({ limit: '10kb' }));
@@ -71,6 +86,7 @@ app.use(
 app.use(compression());
 app.use('/', viewRouter);
 app.use('/api/v1/tours', toursRouter);
+//app.use('/api/v1/tours', cors(),toursRouter);//Enabling cors for only tour routes
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
 app.use('/api/v1/bookings', bookingRouter);

@@ -20,8 +20,10 @@ router.get(
   viewsController.getTour
 );
 router.get('/ME', authController.protectRoute, viewsController.displayAccount);
+
 router.get(
   '/my-tours',
+  //bookingController.createBookingCheckout,
   authController.protectRoute,
   viewsController.getMyTours
 );

@@ -7,12 +7,13 @@ const catchAsyncErrors = require('./../utils/catchAsyncError');
 const AppError = require('../utils/appErrors');
 const Email = require('./../utils/email');
 const catchAsyncError = require('./../utils/catchAsyncError');
+const req = require('express/lib/request');
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
-const createSendToken = (user, statusCode, res) => {
+const createSendToken = (user, statusCode, req, res) => {
   const token = signToken(user._id);
   const cookieOptions = {
     expires: new Date(
@@ -20,7 +21,9 @@ const createSendToken = (user, statusCode, res) => {
     ),
     httpOnly: true,
   };
-  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+  //if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+  if (req.secure || req.headers['x-forwarded-proto'] === 'https')
+    cookieOptions.secure = true;
   res.cookie('jwt', token, cookieOptions);
   user.password = undefined;
 
@@ -45,7 +48,7 @@ exports.signup = catchAsyncErrors(async (req, res, next) => {
   const url = `${req.protocol}://${req.get('host')}/ME`;
   await new Email(newUser, url).sendWelcome();
 
-  createSendToken(newUser, 201, res);
+  createSendToken(newUser, 201, req, res);
 });
 
 exports.signIn = catchAsyncErrors(async (req, res, next) => {
@@ -59,7 +62,7 @@ exports.signIn = catchAsyncErrors(async (req, res, next) => {
   if (!user || !(await user.checkPasswordValidility(password, user.password)))
     return next(new AppError('Incorrect password or email', 404));
 
-  createSendToken(user, 200, res);
+  createSendToken(user, 200, req, res);
 });
 
 exports.logout = (req, res, next) => {
@@ -219,7 +222,7 @@ exports.resetPassword = catchAsyncErrors(async (req, res, next) => {
   user.passwordResetExpires = undefined;
   await user.save();
 
-  createSendToken(user, 200, res);
+  createSendToken(user, 200, req, res);
 });
 
 //UPDATE PASSWORD
@@ -240,5 +243,5 @@ exports.updatePassword = catchAsyncErrors(async (req, res, next) => {
   user.passwordConfirm = req.body.passwordConfirm;
   await user.save();
 
-  createSendToken(user, 200, res);
+  createSendToken(user, 200, req, res);
 });
