@@ -36,7 +36,6 @@
     "slugify": "^1.6.5",
     "stripe": "^7.0.0",
     "validator": "^13.7.0",
-    "win-node-env": "^0.6.0",
     "xss-clean": "^0.1.1"
   },
   "devDependencies": {
@@ -44,6 +43,5 @@
   },
   "engines": {
     "node": "^16"
-  },
-  "optionalDependencies": {}
+  }
 }
